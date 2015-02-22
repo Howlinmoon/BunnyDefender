@@ -32,19 +32,19 @@ BunnyDefender.Game.prototype = {
     },
     
     assignBunnyMovement: function(b) {
-        bposition = Math.floor(this.rnd.realInRange(50,  this.world.width-50));
-        bdelay = this.rnd.IntegerInRange(2000, 6000);
-        if (bposition < b.x) {
+        bposition = Math.floor(this.rnd.realInRange(50, this.world.width-50));
+        bdelay = this.rnd.integerInRange(2000, 6000);
+        if(bposition < b.x){
             b.scale.x = 1;
-        } else {
+        }else{
             b.scale.x = -1;
         }
-        t = this.add.tween(b).to({x:position}, 3500, Phaser.Easing.Quadratic.InOut, true, bdelay);
+        t = this.add.tween(b).to({x:bposition}, 3500, Phaser.Easing.Quadratic.InOut, true, bdelay);
         t.onStart.add(this.startBunny, this);
         t.onComplete.add(this.stopBunny, this);
     },
     
-    starBunny: function(b) {
+    startBunny: function(b) {
         b.animations.stop('Play');
         b.animations.play('Walk', 24, true);
     },
