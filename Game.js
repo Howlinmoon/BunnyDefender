@@ -70,8 +70,22 @@ BunnyDefender.Game.prototype = {
             r.body.velocity.y = this.rnd.integerInRange(200,400);
             r.animations.add('Fall');
             r.animations.play('Fall', 24, true);
+            r.checkWorldBounds = true;
+            r.events.onOutOfBounds.add(this.resetRock, this);
         }
     },
+
+    resetRock: function(r) {
+      if (r.y > this.world.height) {
+        this.respawnRock(r);   
+      }
+    },
+    
+    respawnRock: function(r) {
+        r.reset(this.rnd.integerInRange(0, this.world.width), this.rnd.realInRange(-1500, 0));
+        r.body.velocity.y = this.rnd.integerInRange(200, 400);
+    },
+    
     
     
     
