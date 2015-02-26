@@ -105,12 +105,13 @@ BunnyDefender.Game.prototype = {
     },
     
     
+    burstCollision: function(r, b) {
+        this.respawnRock(r);
+    },
     
     
-    
-    
-    
-    
-    update: function() {}
+    update: function() {
+        this.physics.arcade.overlap(this.spacerockgroup, this.burst, this.burstCollision, null, this);
+    }
     
 };
