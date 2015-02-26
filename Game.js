@@ -109,9 +109,26 @@ BunnyDefender.Game.prototype = {
         this.respawnRock(r);
     },
     
+    bunnyCollision: function(r, b) {
+        if (b.exists) {
+            this.respawnRock(r);
+            b.kill();
+            this.totalBunnies--;
+            this.checkBunniesLeft();
+        }
+    },
+    
+    checkBunniesLeft: function() {
+        if (this.totalBunnies <= 0) {
+            // game over goes here
+        }
+    },
+    
     
     update: function() {
         this.physics.arcade.overlap(this.spacerockgroup, this.burst, this.burstCollision, null, this);
+        this.physics.arcade.overlap(this.spacerockgroup, this.bunnygroup, this.bunnyCollision, null, this);
+        
     }
     
 };
