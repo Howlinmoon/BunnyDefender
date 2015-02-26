@@ -124,10 +124,19 @@ BunnyDefender.Game.prototype = {
         }
     },
     
+    friendlyFire: function(b, e) {
+        if (b.exists) {
+            b.kill();
+            this.totalBunnies--;
+            this.checkBunniesLeft();
+        }
+    },
+    
     
     update: function() {
         this.physics.arcade.overlap(this.spacerockgroup, this.burst, this.burstCollision, null, this);
         this.physics.arcade.overlap(this.spacerockgroup, this.bunnygroup, this.bunnyCollision, null, this);
+        this.physics.arcade.overlap(this.bunnygroup, this.burst, this.friendlyFire, null, this);
         
     }
     
