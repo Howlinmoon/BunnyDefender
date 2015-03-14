@@ -4,11 +4,14 @@ BunnyDefender.Game = function(game) {
     this.totalSpacerocks;
     this.spacerockgroup;
     this.burst;
+    this.gameover;
+    this.countdown;
 };
 
 BunnyDefender.Game.prototype = {
     
     create: function() {
+        this.gameover = false;
         this.totalBunnies = 20;
         this.totalSpacerocks = 13;
         this.buildWorld();
@@ -20,6 +23,7 @@ BunnyDefender.Game.prototype = {
         this.buildBunnies();
         this.buildSpaceRocks();
         this.buildEmitter();
+        this.countdown = this.add.bitmapText(10, 10, 'eightbitwonder', 'Bunnies Left ' + this.totalBunnies, 20);
     },
     
     buildBunnies: function() {
@@ -77,6 +81,7 @@ BunnyDefender.Game.prototype = {
         }
     },
     
+    
     resetRock: function(r) {
         if(r.y > this.world.height) {
             this.respawnRock(r);   
@@ -84,8 +89,10 @@ BunnyDefender.Game.prototype = {
     },
     
     respawnRock: function(r) {
-        r.reset(this.rnd.integerInRange(0, this.world.width), this.rnd.realInRange(-1500, 0));
-        r.body.velocity.y = this.rnd.integerInRange(200, 400);
+        if(this.gameover == false){
+            r.reset(this.rnd.integerInRange(0, this.world.width), this.rnd.realInRange(-1500, 0));
+            r.body.velocity.y = this.rnd.integerInRange(200, 400);
+        }
     },
     
     buildEmitter:function() {
@@ -99,20 +106,21 @@ BunnyDefender.Game.prototype = {
     },
     
     fireBurst: function(pointer) {
-        this.burst.emitX = pointer.x;
-        this.burst.emitY = pointer.y;
-        this.burst.start(true, 2000, null, 20);
+        if(this.gameover == false){
+            this.burst.emitX = pointer.x;
+            this.burst.emitY = pointer.y;
+            this.burst.start(true, 2000, null, 20);
+        }
     },
     
-    
     burstCollision: function(r, b) {
-        this.respawnRock(r);
+        this.respawnRock(r);  
     },
     
     bunnyCollision: function(r, b) {
-        if (b.exists) {
-            this.makeGhost(b);
+        if(b.exists){
             this.respawnRock(r);
+            this.makeGhost(b);
             b.kill();
             this.totalBunnies--;
             this.checkBunniesLeft();
@@ -120,13 +128,16 @@ BunnyDefender.Game.prototype = {
     },
     
     checkBunniesLeft: function() {
-        if (this.totalBunnies <= 0) {
-            // game over goes here
+        if(this.totalBunnies <= 0){
+            this.gameover = true;
+            this.countdown.setText('Bunnies Left 0');
+        }else {
+            this.countdown.setText('Bunnies Left ' + this.totalBunnies);
         }
     },
     
-    friendlyFire: function(b, e) {
-        if (b.exists) {
+    friendlyFire: function(b, e){
+        if(b.exists){
             this.makeGhost(b);
             b.kill();
             this.totalBunnies--;
@@ -146,15 +157,28 @@ BunnyDefender.Game.prototype = {
     
     
     
-    
-    
-    
-    
     update: function() {
         this.physics.arcade.overlap(this.spacerockgroup, this.burst, this.burstCollision, null, this);
         this.physics.arcade.overlap(this.spacerockgroup, this.bunnygroup, this.bunnyCollision, null, this);
         this.physics.arcade.overlap(this.bunnygroup, this.burst, this.friendlyFire, null, this);
-        
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 };
