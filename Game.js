@@ -9,6 +9,10 @@ BunnyDefender.Game = function(game) {
     this.overmessage;
     this.secondsElapsed;
     this.timer;
+    this.music;
+    this.ouch;
+    this.boom;
+    this.ding;
 };
 
 BunnyDefender.Game.prototype = {
@@ -20,6 +24,13 @@ BunnyDefender.Game.prototype = {
         this.timer.loop(1000, this.updateSeconds, this);
         this.totalBunnies = 20;
         this.totalSpacerocks = 13;
+        
+        this.music = this.add.audio("game_audio");
+        this.music.play('', 0, 0.3, true);
+        this.ouch = this.add.audio("hurt_audio")
+        this.boom = this.add.audio("explosion_audio");
+        this.ding = this.add.audio('select_audio');
+        
         this.buildWorld();
     },
     
@@ -119,6 +130,8 @@ BunnyDefender.Game.prototype = {
     
     fireBurst: function(pointer) {
         if(this.gameover == false){
+            this.boom.volume = 0.2;
+            this.boom.play();
             this.burst.emitX = pointer.x;
             this.burst.emitY = pointer.y;
             this.burst.start(true, 2000, null, 20);
@@ -131,6 +144,7 @@ BunnyDefender.Game.prototype = {
     
     bunnyCollision: function(r, b) {
         if (b.exists) {
+            this.ouch.play();
             this.respawnRock(r);
             this.makeGhost(b);
             b.kill();
@@ -142,6 +156,7 @@ BunnyDefender.Game.prototype = {
     checkBunniesLeft: function() {
         if (this.totalBunnies <= 0) {
             this.gameover = true;
+            this.music.stop();
             this.countdown.setText('Bunnies Left 0');
             this.overmessage = this.add.bitmapText(this.world.centerX - 180, this.world.centerY - 40, 'eightbitwonder', 'GAME OVER\n\n' + this.secondsElapsed, 42);
             this.overmessage.align = 'center';
@@ -153,11 +168,13 @@ BunnyDefender.Game.prototype = {
     },
         
     quitGame: function(pointer) {
+        this.ding.play();
         this.state.start('StartMenu');
     },
     
     friendlyFire: function(b, e){
         if (b.exists) {
+            this.ouch.play();
             this.makeGhost(b);
             b.kill();
             this.totalBunnies--;
