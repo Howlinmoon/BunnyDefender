@@ -6,15 +6,26 @@ BunnyDefender.Game = function(game) {
     this.burst;
     this.gameover;
     this.countdown;
+    this.overmessage;
+    this.secondsElapsed;
+    this.timer;
 };
 
 BunnyDefender.Game.prototype = {
     
     create: function() {
         this.gameover = false;
+        this.secondsElapsed = 0;
+        this.timer = this.time.create(false);
+        this.timer.loop(1000, this.updateSeconds, this);
         this.totalBunnies = 20;
         this.totalSpacerocks = 13;
         this.buildWorld();
+    },
+    
+    
+    updateSeconds: function() {
+        this.secondsElapsed++;
     },
     
     buildWorld: function() {
@@ -24,12 +35,13 @@ BunnyDefender.Game.prototype = {
         this.buildSpaceRocks();
         this.buildEmitter();
         this.countdown = this.add.bitmapText(10, 10, 'eightbitwonder', 'Bunnies Left ' + this.totalBunnies, 20);
+        this.timer.start();
     },
     
     buildBunnies: function() {
         this.bunnygroup = this.add.group();
         this.bunnygroup.enableBody = true;
-        for(var i=0; i<this.totalBunnies; i++) {
+        for(var i=0; i < this.totalBunnies; i++) {
             var b = this.bunnygroup.create(this.rnd.integerInRange(-10, this.world.width-50), this.rnd.integerInRange(this.world.height-180, this.world.height-60), 'bunny', 'Bunny0000');
             b.anchor.setTo(0.5, 0.5);
             b.body.moves = false;
@@ -43,9 +55,9 @@ BunnyDefender.Game.prototype = {
     assignBunnyMovement: function(b) {
         bposition = Math.floor(this.rnd.realInRange(50, this.world.width-50));
         bdelay = this.rnd.integerInRange(2000, 6000);
-        if(bposition < b.x){
+        if (bposition < b.x) {
             b.scale.x = 1;
-        }else{
+        } else {
             b.scale.x = -1;
         }
         t = this.add.tween(b).to({x:bposition}, 3500, Phaser.Easing.Quadratic.InOut, true, bdelay);
@@ -83,13 +95,13 @@ BunnyDefender.Game.prototype = {
     
     
     resetRock: function(r) {
-        if(r.y > this.world.height) {
+        if (r.y > this.world.height) {
             this.respawnRock(r);   
         }
     },
     
     respawnRock: function(r) {
-        if(this.gameover == false){
+        if (this.gameover == false) {
             r.reset(this.rnd.integerInRange(0, this.world.width), this.rnd.realInRange(-1500, 0));
             r.body.velocity.y = this.rnd.integerInRange(200, 400);
         }
@@ -118,7 +130,7 @@ BunnyDefender.Game.prototype = {
     },
     
     bunnyCollision: function(r, b) {
-        if(b.exists){
+        if (b.exists) {
             this.respawnRock(r);
             this.makeGhost(b);
             b.kill();
@@ -128,16 +140,24 @@ BunnyDefender.Game.prototype = {
     },
     
     checkBunniesLeft: function() {
-        if(this.totalBunnies <= 0){
+        if (this.totalBunnies <= 0) {
             this.gameover = true;
             this.countdown.setText('Bunnies Left 0');
-        }else {
+            this.overmessage = this.add.bitmapText(this.world.centerX - 180, this.world.centerY - 40, 'eightbitwonder', 'GAME OVER\n\n' + this.secondsElapsed, 42);
+            this.overmessage.align = 'center';
+            this.overmessage.inputEnabled = true;
+            this.overmessage.events.onInputDown.addOnce(this.quitGame, this);
+        } else {
             this.countdown.setText('Bunnies Left ' + this.totalBunnies);
         }
     },
+        
+    quitGame: function(pointer) {
+        this.state.start('StartMenu');
+    },
     
     friendlyFire: function(b, e){
-        if(b.exists){
+        if (b.exists) {
             this.makeGhost(b);
             b.kill();
             this.totalBunnies--;
